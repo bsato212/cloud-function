@@ -1,0 +1,31 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - cloud-function-{{ checksum "src/package.json" }}
+
+      - run:
+          name: yarn install
+          command: yarn --cwd src install
+
+      - save_cache:
+          paths:
+            - src/node_modules
+          key: cloud-function-{{ checksum "src/package.json" }}
+
+      - run:
+          name: lint
+          command: yarn --cwd src lint
+
+      - run:
+          name: test
+          command: yarn --cwd src test
